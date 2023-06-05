@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const { Schema, model } = require("mongoose");
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   username: {
     type: String,
     required: true,
@@ -18,10 +19,10 @@ const UserSchema = new mongoose.Schema({
   cart: [
     {
       product: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Product",
       },
-      Quantity: {
+      quantity: {
         type: Number,
         default: 1,
       },

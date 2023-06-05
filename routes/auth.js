@@ -2,7 +2,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
 const { generateToken } = require("../utils/jwt.js");
-
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
@@ -39,7 +38,10 @@ router.post("/login", async (req, res) => {
   if (!pass) return res.status(400).send("Invalid password");
 
   const token = generateToken({ _id: user._id });
-  res.header("auth-token", token).send(token);
+
+  res.cookie("auth-token", token, { httpOnly: true });
+
+  res.send("Logged in");
 });
 
 module.exports = router;

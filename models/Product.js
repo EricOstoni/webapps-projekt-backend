@@ -9,7 +9,7 @@ const ProductSchema = new mongoose.Schema({
   desc: {
     type: String,
     required: true,
-  }, // description of the product
+  },
   img: {
     type: String,
     required: true,
