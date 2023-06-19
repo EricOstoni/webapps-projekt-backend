@@ -11,23 +11,32 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 dotenv.config();
-app.use(cors());
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-/*app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  
-  next();
-});*/
+let corsOptions = {
+  origin: "http://localhost:8080",
+  optionsSuccessStatus: 200,
+  credentials: true,
+};
 
-app.use(
-  cors({
-    origin: "http://localhost:8080",
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    return res.status(200).json({});
+  }
+  next();
+});
 
 mongoose
   .connect(process.env.MONGO_URL, {
