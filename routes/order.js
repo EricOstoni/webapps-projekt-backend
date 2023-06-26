@@ -1,7 +1,7 @@
 const express = require("express");
-const User = require("../models/user");
+const User = require("../models/User.js");
 //const Product = require("../models/product");
-const Order = require("../models/Order");
+const Order = require("../models/Order.js");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
