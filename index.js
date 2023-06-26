@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 let corsOptions = {
-  origin: "http://localhost:8080",
+  origin: "https://oilshop-frontend.onrender.com/", 
   optionsSuccessStatus: 200,
   credentials: true,
 };
