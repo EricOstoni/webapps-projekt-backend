@@ -1,54 +1,76 @@
 const express = require("express");
 const User = require("../models/user.js");
 const Product = require("../models/Product.js");
-const { verifyToken } = require("../utils/jwt.js");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-// Add to cart route
-router.post("/add", verifyToken, async (req, res) => {
+
+//ADD TO CART
+router.post("/add", async (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
   const { productId, quantity } = req.body;
 
-  const product = await Product.findById(productId);
-  if (!product) return res.status(400).send("Product not found");
+  jwt.verify(token, process.env.SECRET_KEY, async (err, jwtuser) => {
+    if (err) return res.sendStatus(403);
 
-  const userId = req.user._id; 
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).send("User not found");
+    const product = await Product.findById(productId);
+    if (!product) return res.status(400).send("Product not found");
 
-  const cartItem = {
-    product: productId,
-    Quantity: quantity,
-  };
+    const user = await User.findById(jwtuser.id);
+    if (!user) return res.status(400).send("User not found");
 
-  user.cart.push(cartItem);
+    const item = {
+      product: productId,
+      quantity: quantity,
+    };
 
-  try {
-    await user.save();
-    res.send("Product added to cart successfully");
-  } catch (err) {
-    res.status(400).send(err);
-  }
+    user.cart.push(item);
+
+    try {
+      await user.save();
+      res.send("Product added to cart successfully");
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  });
 });
 
-router.delete("/remove", verifyToken, async (req, res) => {
+//GET ALL PRODUCTS FROM THE CART
+router.get("/cart", async (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
+
+  jwt.verify(token, process.env.SECRET_KEY, async (err, jwtuser) => {
+    if (err) return res.sendStatus(403);
+
+    const user = await User.findById(jwtuser.id).populate("cart.product");
+    if (!user) return res.status(400).send("User not found");
+
+    res.send(user.cart);
+  });
+});
+
+
+//REMOVE PRODUCT FROM THE CART
+router.delete("/remove", async (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
   const { productId } = req.body;
 
-  const userId = req.user._id;
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).send("User not found");
+  jwt.verify(token, process.env.SECRET_KEY, async (err, jwtuser) => {
+    if (err) return res.sendStatus(403);
 
-  user.cart.pull({ product: productId });
+    const user = await User.findById(jwtuser.id);
+    if (!user) return res.status(400).send("User not found");
 
-  try {
-    await user.save();
-    res.send("Product removed from cart successfully");
-  } catch (err) {
-    res.status(400).send(err);
-  }
+    user.cart.pull({ product: productId });
+
+    try {
+      await user.save();
+      res.send("Product removed from cart successfully");
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  });
 });
-
-
-
 
 module.exports = router;
