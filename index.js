@@ -17,6 +17,11 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
+
 let corsOptions = {
   origin: "https://oilshop-frontend.onrender.com/", 
   optionsSuccessStatus: 200,
