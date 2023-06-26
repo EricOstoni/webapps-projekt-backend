@@ -3,7 +3,7 @@ const router = express.Router();
 const Product = require("../models/Product.js");
 
 //ADD PRODUCT
-router.post("/product", async (req, res) => {
+router.post("/", async (req, res) => {
   const { name, desc, price, img } = req.body;
 
   try {
@@ -23,7 +23,7 @@ router.post("/product", async (req, res) => {
 });
 
 //GET ALL PRODUCTS
-router.get("/product", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
     res.json(products);
@@ -33,7 +33,7 @@ router.get("/product", async (req, res) => {
 });
 
 //GET A PRODUCT BY ID
-router.get("/product/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findById(id);

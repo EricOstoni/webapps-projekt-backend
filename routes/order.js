@@ -8,7 +8,7 @@ const router = express.Router();
 
 
 //CREATE A ORDER
-router.post("/order", async (req, res) => {
+router.post("/", async (req, res) => {
   const { items, address, payment } = req.body;
 
   const token = req.headers.authorization.split(" ")[1];
