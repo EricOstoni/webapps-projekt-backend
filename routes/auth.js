@@ -1,11 +1,11 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.js");
-//const { generateToken } = require("../utils/jwt.js");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-// const bodyParser = require("body-parser");
 
+
+// REGISTER USER
 router.post("/register", async (req, res) => {
   const { email, password, username } = req.body;
 
@@ -30,6 +30,8 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
+//LOGIN USER
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
