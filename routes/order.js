@@ -2,51 +2,44 @@ const express = require("express");
 const User = require("../models/user");
 //const Product = require("../models/product");
 const Order = require("../models/Order");
-const { verifyToken } = require("../utils/jwt");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
-router.post("/create", verifyToken, async (req, res) => {
-  const userId = req.user._id;
 
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).send("User not found");
 
-  if (user.cart.length == 0) return res.status(400).send("Your cart is empty");
+//CREATE A ORDER
+router.post("/order", async (req, res) => {
+  const { items, address, payment } = req.body;
 
-  const { address, zip, city, card } = req.body;
+  const token = req.headers.authorization.split(" ")[1];
 
-  if (!(address && zip && city && card)) {
-    return res.status(400).send("All fields are required");
-  }
+  jwt.verify(token, process.env.SECRET_KEY, async (err, jwtuser) => {
+    if (err) return res.sendStatus(403);
 
-  const products = user.cart.map((item) => {
-    return {
-      product: item.product,
-      quantity: item.quantity,
-    };
+    const user = await User.findById(jwtuser.id);
+
+    if (user.cart.length === 0) {
+      return res.status(400).send("No items in cart");
+    }
+
+    const newOrder = new Order({
+      user: jwtuser.id,
+      items: user.cart,
+      address,
+      payment,
+    });
+
+    try {
+      const savedOrder = await newOrder.save();
+
+      user.cart = [];
+      await user.save();
+
+      res.send(savedOrder);
+    } catch (err) {
+      res.status(400).send(err);
+    }
   });
-
-  const order = new Order({
-    user: userId,
-    products: products,
-    address: {
-      address: address,
-      zip: zip,
-      city: city,
-    },
-    card: card,
-  });
-
-  try {
-    const savedOrder = await order.save();
-
-    user.cart = [];
-    await user.save();
-
-    return res.status(201).send(savedOrder);
-  } catch (err) {
-    return res.status(500).send("Something went wrong");
-  }
 });
 
 module.exports = router;
