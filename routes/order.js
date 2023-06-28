@@ -3,6 +3,7 @@ const User = require("../models/User.js");
 //const Product = require("../models/product");
 const Order = require("../models/Order.js");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const router = express.Router();
 
@@ -34,6 +35,29 @@ router.post("/", async (req, res) => {
 
       user.cart = [];
       await user.save();
+
+      let transporter = nodemailer.createTransport({
+        service: 'gmail', 
+        auth: {
+          user: process.env.EMAIL,  
+          pass: process.env.PASSWORD  
+        }
+      });
+
+      let mailOptions = {
+        from: process.env.EMAIL,
+        to: user.email,  
+        subject: 'Order Confirmation',
+        text: 'Your order was successfully created. Your order id is: ' + savedOrder._id
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
 
       res.send(savedOrder);
     } catch (err) {
